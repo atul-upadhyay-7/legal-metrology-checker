@@ -4,6 +4,21 @@ Checks a packaged-commodity label against the mandatory Legal Metrology declarat
 
 Checks: net quantity, MRP inclusive of all taxes, manufacture or pack month and year, manufacturer/packer/importer address, consumer care details, country of origin. Two contexts: a **package label** is checked for all six declarations. An **online listing** is checked under Rule 6(10), which requires the Rule 6(1) declarations on the e-commerce display *except* the month and year of manufacture or packing, so that check is marked not applicable. A best-before or expiry date is a separate declaration and never replaces manufacture month and year. Food packages follow the Food Safety and Standards Act for date marking, so a missing manufacture date goes to review. Sources: Legal Metrology (Packaged Commodities) Rules, 2011 as amended (rule 6(1)(d), 6(10)); DCA FAQ Q27 and Q50 (https://consumeraffairs.nic.in/sites/default/files/file-uploads/latestnews/LM_FAQs.pdf). This is a first-pass aid, not legal advice.
 
+## TinyFish integration (live capture of online listings)
+
+For an online listing, paste a product-page URL. The server calls the TinyFish **Fetch API** (`POST https://api.fetch.tinyfish.ai`, `ttl: 0` so it is a live fetch, markdown output), receives the rendered page text plus title, final URL and capture time, and feeds that text to the same rule engine in the **listing** context (Rule 6(10)). The result shows the capture source and timestamp.
+
+- Endpoint: `POST /api/check-url` (form fields `url`, optional `category`).
+- A failed, blocked or empty capture returns an error telling the reviewer to treat the product as Needs review. It never produces a pass or a violation.
+- Only public http(s) URLs are accepted (localhost and private addresses are rejected). Read-only: no purchases, logins or seller changes.
+- Set `TINYFISH_API_KEY` in the environment (key from https://agent.tinyfish.ai/api-keys). Fetch is free up to 1,000 URLs per day.
+- Tests mock the TinyFish HTTP response; a real call needs the key.
+
+```
+export TINYFISH_API_KEY=your_key
+uvicorn app.main:app --reload
+```
+
 ## Run
 
 Needs Python 3.10+ and Tesseract OCR (`sudo apt install tesseract-ocr`, or `brew install tesseract`, or the Windows installer from UB Mannheim).

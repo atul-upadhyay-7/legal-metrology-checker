@@ -15,5 +15,5 @@ const j=JSON.parse(sessionStorage.getItem('lm_result')||'null');
 if(j){const names={compliant:'Compliant',non_compliant:'Non-compliant',needs_review:'Needs review'};
 document.getElementById('out').innerHTML='<h2>'+names[j.overall]+'</h2><p><small>Checked as: '+esc(j.context)+' / '+esc(j.category)+'</small></p>'+j.results.map(x=>
  `<div class="card ${x.status}"><span class="tag">${x.status.replace('_',' ')}</span> ${esc(x.label)}<br><small>${esc(x.detail)}${x.evidence?' | Found: '+esc(x.evidence):''}</small></div>`).join('')
- +'<details><summary>Extracted text</summary><pre>'+esc(j.extracted_text)+'</pre></details>';}
+ +(j.capture?'<p><small>Captured live by TinyFish: '+esc(j.capture.final_url)+' at '+esc(j.capture.captured_at)+'</small></p>':'')+'<details><summary>Extracted text</summary><pre>'+esc(j.extracted_text)+'</pre></details>';}
 </script></body></html>

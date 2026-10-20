@@ -15,6 +15,7 @@ textarea{width:100%;height:100px} .row{margin:1rem 0}
 <div class="row"><input type="file" name="image" accept="image/*"></div>
 <div class="row"><label>Checking: <select name="context"><option value="package">Package label (physical pack)</option><option value="listing">Online listing display (Rule 6(10))</option></select></label>
  <label>Category: <select name="category"><option value="general">General</option><option value="food">Food</option></select></label></div>
+<div class="row"><small>Or capture a live product page with TinyFish (checked as an online listing):</small><br><input type="url" name="url" placeholder="https://..." style="width:100%"></div>
 <div class="row"><small>Or paste label text instead:</small><textarea name="text"></textarea></div>
 <button>Check label</button>
 </form>
@@ -23,13 +24,14 @@ textarea{width:100%;height:100px} .row{margin:1rem 0}
 const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
 document.getElementById('f').onsubmit=async e=>{
  e.preventDefault();const out=document.getElementById('out');out.textContent='Checking...';
- const r=await fetch('/api/check',{method:'POST',body:new FormData(e.target)});
+ const fd=new FormData(e.target);const u=(fd.get('url')||'').trim();
+ const r=u?await fetch('/api/check-url',{method:'POST',body:fd}):await fetch('/api/check',{method:'POST',body:fd});
  const j=await r.json();
  if(r.ok){sessionStorage.setItem('lm_result',JSON.stringify(j));location.href='/static/results.html';return}
  if(!r.ok){out.textContent=j.detail||'Error';return}
  const names={compliant:'Compliant',non_compliant:'Non-compliant',needs_review:'Needs review'};
  out.innerHTML='<h2>'+names[j.overall]+'</h2>'+j.results.map(x=>
   `<div class="card ${x.status}"><span class="tag">${x.status}</span> ${esc(x.label)}<br><small>${esc(x.detail)}${x.evidence?' | Found: '+esc(x.evidence):''}</small></div>`).join('')
-  +'<details><summary>Extracted text</summary><pre>'+esc(j.extracted_text)+'</pre></details>';
+  +(j.capture?'<p><small>Captured live by TinyFish: '+esc(j.capture.final_url)+' at '+esc(j.capture.captured_at)+'</small></p>':'')+'<details><summary>Extracted text</summary><pre>'+esc(j.extracted_text)+'</pre></details>';
 };
 </script></body></html>

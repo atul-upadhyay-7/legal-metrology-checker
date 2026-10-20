@@ -77,3 +77,48 @@ def test_bad_context_raises():
     import pytest
     with pytest.raises(ValueError):
         run_rules("x", "nope")
+
+
+def _fake_tinyfish(monkeypatch, handler):
+    import httpx
+    from app import tinyfish
+    monkeypatch.setenv("TINYFISH_API_KEY", "test-key")
+    monkeypatch.setattr(tinyfish, "validate_url", lambda u: u)
+    real = httpx.Client
+    monkeypatch.setattr(tinyfish.httpx, "Client", lambda **kw: real(transport=httpx.MockTransport(handler)))
+
+
+def test_check_url_uses_tinyfish_and_listing_rules(monkeypatch):
+    import json
+    seen = {}
+
+    def handler(req):
+        import httpx
+        seen["key"] = req.headers["x-api-key"]
+        seen["body"] = json.loads(req.content)
+        text = (S / "04_expiry_only_review.txt").read_text()
+        return httpx.Response(200, json={"results": [{"url": "https://shop.example/p", "final_url": "https://shop.example/p", "title": "Tea", "text": text}], "errors": []})
+
+    _fake_tinyfish(monkeypatch, handler)
+    r = TestClient(app).post("/api/check-url", data={"url": "https://shop.example/p"})
+    assert r.status_code == 200
+    j = r.json()
+    assert seen["key"] == "test-key" and seen["body"]["ttl"] == 0
+    assert j["context"] == "listing" and j["overall"] == "compliant"
+    assert j["capture"]["source"] == "tinyfish-fetch" and j["capture"]["captured_at"]
+
+
+def test_check_url_failed_capture_is_not_a_verdict(monkeypatch):
+    import httpx
+    _fake_tinyfish(monkeypatch, lambda req: httpx.Response(200, json={"results": [], "errors": [{"url": "x", "error": "blocked"}]}))
+    r = TestClient(app).post("/api/check-url", data={"url": "https://shop.example/p"})
+    assert r.status_code == 502 and "Needs review" in r.json()["detail"]
+
+
+def test_check_url_missing_key_and_bad_url(monkeypatch):
+    monkeypatch.delenv("TINYFISH_API_KEY", raising=False)
+    c = TestClient(app)
+    assert c.post("/api/check-url", data={"url": "https://shop.example/p"}).status_code == 503
+    monkeypatch.setenv("TINYFISH_API_KEY", "k")
+    assert c.post("/api/check-url", data={"url": "http://127.0.0.1:8000/"}).status_code == 400
+    assert c.post("/api/check-url", data={"url": "file:///etc/passwd"}).status_code == 400
