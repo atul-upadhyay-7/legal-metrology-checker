@@ -13,14 +13,13 @@
   window.Motion = {
     enabled: ok,
 
-    /* Input page: rule underline draws in, cards rise in one after another. */
+    /* Input page: hero text rises in, cards follow one after another. */
     pageIn() {
       if (!ok) return;
-      const rule = document.querySelector('header.top');
-      const cards = $$('.card');
-      hide(cards);
-      rule.style.setProperty('--draw', '0');
-      A.animate(rule, { '--draw': [0, 1], duration: 700, ease });
+      const hero = $$('.hero .tag, .hero h1, .hero p');
+      const cards = $$('.grid .card');
+      hide(cards); hide(hero);
+      A.animate(hero, { opacity: [0, 1], translateY: [14, 0], duration: 560, delay: A.stagger(90), ease });
       A.animate(cards, { opacity: [0, 1], translateY: [18, 0], duration: 600, delay: A.stagger(110, { start: 150 }), ease });
       $$('.rules li').forEach(li => { li.style.opacity = '0'; });
       A.animate($$('.rules li'), { opacity: [0, 1], translateX: [-8, 0], duration: 420, delay: A.stagger(70, { start: 450 }), ease });

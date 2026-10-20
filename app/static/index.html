@@ -1,9 +1,11 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Legal Metrology Checker</title><link rel="stylesheet" href="/static/style.css"></head><body>
+<div class="hero"><div class="wrap">
+<span class="tag">Rules, 2011 as amended</span>
+<h1>Legal Metrology Checker</h1>
+<p>Checks product declarations against the Legal Metrology (Packaged Commodities) Rules, and shows the evidence and the rule behind every finding.</p></div></div>
 <div class="wrap">
-<header class="top"><h1>Legal Metrology Checker</h1>
-<p>Checks product declarations against the Legal Metrology (Packaged Commodities) Rules, 2011, and shows the evidence and rule behind every finding.</p></header>
 <div class="grid">
 <main class="card">
 <form id="f" novalidate>
@@ -41,6 +43,7 @@
  <div class="note"><b>Online vs package.</b> Rule 6(10) exempts manufacture month and year from the online display. A listing is not faulted for it. The physical package still needs it.</div>
 </aside>
 </div>
+<section id="result" hidden aria-live="polite"></section>
 <footer>First-pass aid, not legal advice. A result of "no issue" covers the checked rules only. A page that could not be read is Needs review, never a violation.</footer>
 </div>
 <script src="/static/vendor/anime.umd.min.js"></script><script src="/static/motion.js"></script><script src="/static/app.js"></script></body></html>

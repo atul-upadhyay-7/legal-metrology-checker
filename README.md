@@ -65,9 +65,9 @@ python -m pytest
 - `app/tinyfish.py` TinyFish Fetch client, URL safety check, capture-quality gate
 - `app/ocr.py` Tesseract wrapper
 - `app/main.py` FastAPI app: `/api/check`, `/api/check-url`, `/api/samples`
-- `app/static/` input page, results page, styles
+- `app/static/` single page (input and results), styles, motion
 - `samples/` sample labels (png and txt) and sample listing texts
 
 ## Third-party code
 
-- anime.js 4.5.0 (MIT, Julian Garnier), vendored at `app/static/vendor/anime.umd.min.js` with its licence file. Used for the page transitions and the results reveal in `app/static/motion.js`. No CDN. Motion is skipped when the browser asks for reduced motion.
+- anime.js 4.5.0 (MIT, Julian Garnier), vendored at `app/static/vendor/anime.umd.min.js` with its licence file. Used for the page-in and the results reveal in `app/static/motion.js`. No CDN. Motion is skipped when the browser asks for reduced motion.

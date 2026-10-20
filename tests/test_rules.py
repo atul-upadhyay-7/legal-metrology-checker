@@ -170,7 +170,7 @@ def test_motion_assets_are_local_and_licensed():
     from pathlib import Path
     st = Path(__file__).resolve().parent.parent / "app" / "static"
     assert (st / "vendor" / "anime.umd.min.js").exists() and "MIT" in (st / "vendor" / "anime-LICENSE.md").read_text()
-    for page in ("index.html", "results.html"):
+    for page in ("index.html",):
         html = (st / page).read_text()
         assert "http://" not in html and "https://" not in html.replace("https://www.example.com", "")  # no CDN, demo-safe
         assert "vendor/anime.umd.min.js" in html and "motion.js" in html
