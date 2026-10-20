@@ -12,6 +12,24 @@ app = FastAPI(title="Legal Metrology Checker")
 app.mount("/static", StaticFiles(directory=BASE / "static"), name="static")
 
 
+@app.get("/api/samples")
+def samples():
+    """Sample texts for the UI so the demo works without a photo or a live page."""
+    S = BASE.parent / "samples"
+    rd = lambda n: (S / n).read_text()
+    return {
+        "listing": [
+            {"title": "Complete listing", "text": rd("listing_01_complete.txt"), "category": "food"},
+            {"title": "Missing MRP", "text": rd("listing_02_missing_mrp.txt"), "category": "food"},
+        ],
+        "package": [
+            {"title": "Compliant label", "text": rd("01_compliant.txt"), "category": "general"},
+            {"title": "No tax on MRP", "text": rd("02_missing_mrp_tax.txt"), "category": "general"},
+            {"title": "Best-before only", "text": rd("04_expiry_only_review.txt"), "category": "general"},
+        ],
+    }
+
+
 @app.get("/")
 def index():
     return FileResponse(BASE / "static" / "index.html")

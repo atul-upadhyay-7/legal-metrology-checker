@@ -137,3 +137,30 @@ def test_address_needs_by_keyword_not_free_text():
     assert status(out, "address") == "fail"
     out = run_rules("Marketed by: Foo Foods, Plot 3, Sector 9, Pune 411019", "listing")
     assert status(out, "address") == "pass"
+
+
+def test_address_evidence_stops_at_next_labelled_field():
+    t = "Manufacturer: Kesar Foods, Plot 4, Sector 2, Pune 411019\nCountry of Origin: India\nCustomer Care: 1800 123 4567"
+    r = next(x for x in run_rules(t, "listing")["results"] if x["rule"] == "address")
+    assert r["status"] == "pass" and "Country" not in r["evidence"]
+
+
+def test_listing_samples_behave():
+    c = TestClient(app)
+    s = c.get("/api/samples").json()
+    ok = next(x for x in s["listing"] if x["title"] == "Complete listing")
+    bad = next(x for x in s["listing"] if x["title"] == "Missing MRP")
+    assert run_rules(ok["text"], "listing", "food")["overall"] == "compliant"
+    out = run_rules(bad["text"], "listing", "food")
+    assert out["overall"] == "non_compliant" and status(out, "mrp") == "fail" and status(out, "mfg_date") == "not_applicable"
+
+
+def test_origin_missing_is_review_not_fail():
+    out = run_rules("Net Quantity: 1 kg\nMRP Rs 10 inclusive of all taxes", "package")
+    assert status(out, "origin") == "review"
+
+
+def test_rule_refs_and_counts_present():
+    out = run_rules((S / "01_compliant.txt").read_text())
+    assert all(r["ref"].startswith("Rule 6") for r in out["results"])
+    assert sum(out["counts"].values()) == 6
