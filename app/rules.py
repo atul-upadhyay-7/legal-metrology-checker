@@ -56,15 +56,26 @@ _MONTH = r"(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*"
 _DATE = rf"(?:\d{{1,2}}\s*[/.\-]\s*\d{{2,4}}|{_MONTH}[\s.,\-/]*\d{{2,4}}|\d{{4}}\s*[/\-]\s*\d{{1,2}})"
 
 
-def check_mfg_date(text: str) -> Result:
+def check_mfg_date(text: str, context: str = "package", category: str = "general") -> Result:
+    """Month and year of manufacture, Rule 6(1)(d).
+
+    Package label: required (food packages follow the FSS Act instead, so they go to review).
+    Online listing: Rule 6(10) says e-commerce display must carry the Rule 6(1) declarations
+    EXCEPT the month and year of manufacture or packing, so the check does not apply.
+    A best-before / expiry date is a different declaration (Rule 6(1)(h)) and never
+    substitutes for manufacture month and year.
+    """
+    label = "Manufacture month and year"
+    if context == "listing":
+        return Result("mfg_date", label, "not_applicable",
+                      "Rule 6(10): the e-commerce display requirement excludes the month and year of manufacture or packing.")
     m = re.search(rf"(?:mfg\.?|mfd\.?|manufactured|manufacture|pkd\.?|packed|packing|date\s+of\s+(?:manufacture|packing)|month\s+(?:and|&)\s+year[^\n]{{0,25}})[^\n]{{0,30}}?{_DATE}", text, I)
     if m:
-        return Result("mfg_date", "Manufacture / pack month and year", "pass", "Month and year of manufacture or packing found.", m.group(0).strip())
-    # Rule 6(10) exception: do not blanket-flag. Send to review instead of fail.
-    if re.search(r"best\s+before|use\s+by|expiry|exp\.?\s*date|expires", text, I):
-        return Result("mfg_date", "Manufacture / pack month and year", "review",
-                      "No manufacture/pack date, but an expiry or best-before is printed. The Rule 6(10) exception may apply, so a person should check.")
-    return Result("mfg_date", "Manufacture / pack month and year", "fail", "No manufacture or pack month and year found.")
+        return Result("mfg_date", label, "pass", "Month and year of manufacture or packing found.", m.group(0).strip())
+    if category == "food":
+        return Result("mfg_date", label, "review",
+                      "Food packages follow the Food Safety and Standards Act for date marking. A person should check against FSS labelling rules.")
+    return Result("mfg_date", label, "fail", "No month and year of manufacture found on the package.")
 
 
 def check_address(text: str) -> Result:
@@ -96,14 +107,23 @@ def check_origin(text: str) -> Result:
     return Result("origin", "Country of origin", "fail", "No country of origin found.")
 
 
+CONTEXTS = ("package", "listing")
+CATEGORIES = ("general", "food")
 RULES: list[Callable[[str], Result]] = [
-    check_net_quantity, check_mrp, check_mfg_date, check_address, check_consumer_care, check_origin,
+    check_net_quantity, check_mrp, check_address, check_consumer_care, check_origin,
 ]
 
 
-def run_rules(text: str) -> dict:
+def run_rules(text: str, context: str = "package", category: str = "general") -> dict:
+    """context: 'package' (physical label) or 'listing' (online display, Rule 6(10)).
+    category: 'general' or 'food'."""
+    if context not in CONTEXTS:
+        raise ValueError(f"context must be one of {CONTEXTS}")
+    if category not in CATEGORIES:
+        raise ValueError(f"category must be one of {CATEGORIES}")
     text = _norm(text)
     results = [r(text).as_dict() for r in RULES]
+    results.insert(2, check_mfg_date(text, context, category).as_dict())
     statuses = {r["status"] for r in results}
     overall = "non_compliant" if "fail" in statuses else ("needs_review" if "review" in statuses else "compliant")
-    return {"overall": overall, "results": results}
+    return {"overall": overall, "context": context, "category": category, "results": results}

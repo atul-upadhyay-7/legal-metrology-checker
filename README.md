@@ -2,7 +2,7 @@
 
 Checks a packaged-commodity label against the mandatory Legal Metrology declarations. Upload a label image (or paste text): OCR extracts the text, a regex rule engine runs, and the page shows pass / fail / review per declaration.
 
-Checks: net quantity, MRP inclusive of all taxes, manufacture or pack month and year, manufacturer/packer/importer address, consumer care details, country of origin. If the manufacture date is missing but an expiry or best-before is printed, the result is "review" (the Rule 6(10) exception may apply), not a hard fail.
+Checks: net quantity, MRP inclusive of all taxes, manufacture or pack month and year, manufacturer/packer/importer address, consumer care details, country of origin. Two contexts: a **package label** is checked for all six declarations. An **online listing** is checked under Rule 6(10), which requires the Rule 6(1) declarations on the e-commerce display *except* the month and year of manufacture or packing, so that check is marked not applicable. A best-before or expiry date is a separate declaration and never replaces manufacture month and year. Food packages follow the Food Safety and Standards Act for date marking, so a missing manufacture date goes to review. Sources: Legal Metrology (Packaged Commodities) Rules, 2011 as amended (rule 6(1)(d), 6(10)); DCA FAQ Q27 and Q50 (https://consumeraffairs.nic.in/sites/default/files/file-uploads/latestnews/LM_FAQs.pdf). This is a first-pass aid, not legal advice.
 
 ## Run
 

@@ -6,13 +6,15 @@ body{font-family:Arial,sans-serif;max-width:760px;margin:2rem auto;padding:0 1re
 h1{color:#14532d} button{background:#14532d;color:#fff;border:0;padding:.6rem 1.2rem;border-radius:4px;cursor:pointer}
 textarea{width:100%;height:100px} .row{margin:1rem 0}
 .card{border-left:6px solid #999;padding:.5rem .8rem;margin:.5rem 0;background:#f6f6f6}
-.pass{border-color:#15803d}.fail{border-color:#b91c1c}.review{border-color:#b45309}
+.not_applicable{border-color:#6b7280}.pass{border-color:#15803d}.fail{border-color:#b91c1c}.review{border-color:#b45309}
 .tag{font-weight:bold;text-transform:uppercase;font-size:.8rem} small{color:#444} pre{white-space:pre-wrap;background:#f6f6f6;padding:.5rem}
 </style></head><body>
 <h1>Legal Metrology Label Checker</h1>
 <p>Upload a packaged-commodity label image. The page extracts the text and checks each mandatory declaration.</p>
 <form id="f">
 <div class="row"><input type="file" name="image" accept="image/*"></div>
+<div class="row"><label>Checking: <select name="context"><option value="package">Package label (physical pack)</option><option value="listing">Online listing display (Rule 6(10))</option></select></label>
+ <label>Category: <select name="category"><option value="general">General</option><option value="food">Food</option></select></label></div>
 <div class="row"><small>Or paste label text instead:</small><textarea name="text"></textarea></div>
 <button>Check label</button>
 </form>
