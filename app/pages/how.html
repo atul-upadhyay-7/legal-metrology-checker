@@ -1,0 +1,44 @@
+<section class="hero slim"><div class="wrap"><span class="tag">How it works</span><h1>How a check works</h1>
+<p>Plain text matching against six declarations. Every result says what it found and which rule applies.</p></div></section>
+<div class="wrap block">
+<h2 class="h2" data-rise>The pipeline</h2>
+<ol class="steps">
+<li data-rise><b>Capture</b><span>Online listing: the TinyFish Fetch API returns the live page text. Package label: Tesseract OCR reads the photo. Or paste text.</span></li>
+<li data-rise><b>Gate</b><span>A consent page, a bot wall or a page with no price is not a product page. Those become Needs review and no declaration is judged.</span></li>
+<li data-rise><b>Check</b><span>Six rules run on the text, in the chosen context (online listing or package label).</span></li>
+</ol>
+
+<h2 class="h2" data-rise>The six rules</h2>
+<div class="rtable" data-rise>
+<div class="rrow head"><span>Declaration</span><span>Rule</span><span>What the checker looks for</span></div>
+<div class="rrow"><span>Net quantity</span><span>6(1)(c)</span><span>A value with a standard unit (g, kg, ml, l, pieces).</span></div>
+<div class="rrow"><span>MRP</span><span>6(1)(e)</span><span>An MRP amount with "inclusive of all taxes" next to it.</span></div>
+<div class="rrow"><span>Manufacture month and year</span><span>6(1)(d), 6(10)</span><span>Required on the package. Not required on an online listing.</span></div>
+<div class="rrow"><span>Manufacturer, packer or importer</span><span>6(1)(a)</span><span>A name and address after "Manufactured, Packed, Marketed or Imported by".</span></div>
+<div class="rrow"><span>Consumer complaint contact</span><span>6(2)</span><span>A labelled phone number or email.</span></div>
+<div class="rrow"><span>Country of origin</span><span>6(1)(aa)</span><span>Required for imported goods only, so missing means review.</span></div>
+</div>
+
+<h2 class="h2" data-rise>Online listing vs package label</h2>
+<div class="cards3 two">
+<article class="card" data-rise><h3>Online listing</h3><p>Rule 6(10): the e-commerce display must carry the Rule 6(1) declarations except the month and year of manufacture or packing. So that check is shown as not applicable.</p></article>
+<article class="card" data-rise><h3>Package label</h3><p>All six declarations apply. A best-before or use-by date is a separate declaration and never replaces manufacture month and year. Food packages follow the Food Safety and Standards Act for date marking, so a missing date goes to review.</p></article>
+</div>
+
+<h2 class="h2" data-rise>What the statuses mean</h2>
+<div class="legend" data-rise>
+<span><i class="chip pass">Found</i> The declaration is in the text.</span>
+<span><i class="chip fail">Potential issue</i> Not found, or incomplete. A person should confirm.</span>
+<span><i class="chip review">Needs review</i> The tool cannot decide.</span>
+<span><i class="chip not_applicable">Not applicable</i> The rule does not apply here.</span>
+</div>
+
+<h2 class="h2" data-rise>Limits</h2>
+<ul class="plain" data-rise>
+<li>The checks are text patterns. A declaration in a page section the capture missed shows as a potential issue.</li>
+<li>Net quantity applies to pre-packaged goods. The tool does not decide whether a product is one.</li>
+<li>Not covered: unit sale price, font size and display panel rules, dimensions, other e-commerce provisions, and amendments after the December 2024 consolidated text.</li>
+<li>A first-pass aid, not legal advice.</li>
+</ul>
+<p class="cta" data-rise><a class="btn primary" href="/check">Check a product</a></p>
+</div>

@@ -50,7 +50,7 @@ export TINYFISH_API_KEY=your_key   # only needed for URL capture
 uvicorn app.main:app --reload
 ```
 
-Open http://127.0.0.1:8000. The page has sample listings and labels so you can try it without a photo or a URL.
+Open http://127.0.0.1:8000. Pages: Home `/`, Checker `/check`, Results `/results`, How it works `/how-it-works`, About `/about`. The checker page has sample listings and labels so you can try it without a photo or a URL.
 
 ## Test
 
@@ -65,7 +65,8 @@ python -m pytest
 - `app/tinyfish.py` TinyFish Fetch client, URL safety check, capture-quality gate
 - `app/ocr.py` Tesseract wrapper
 - `app/main.py` FastAPI app: `/api/check`, `/api/check-url`, `/api/samples`
-- `app/static/` single page (input and results), styles, motion
+- `app/pages/` page bodies (home, check, results, how it works, about) and the shared base with nav and footer
+- `app/static/` styles, motion, form and results scripts
 - `samples/` sample labels (png and txt) and sample listing texts
 
 ## Third-party code

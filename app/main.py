@@ -1,6 +1,6 @@
 from pathlib import Path
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
-from fastapi.responses import FileResponse
+from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
 from .ocr import extract_text
@@ -30,9 +30,44 @@ def samples():
     }
 
 
-@app.get("/")
-def index():
-    return FileResponse(BASE / "static" / "index.html")
+PAGES = [
+    ("/", "home", "Home", "Home"),
+    ("/check", "check", "Checker", "Check a product"),
+    ("/results", "results", "Results", "Results"),
+    ("/how-it-works", "how", "How it works", "How it works"),
+    ("/about", "about", "About", "About"),
+]
+NAV = [p for p in PAGES if p[1] != "results"]
+PAGE_SCRIPTS = {"check": ["check.js"], "results": ["results.js"]}
+
+
+def _nav(active: str) -> str:
+    out = []
+    for path, key, label, _ in NAV:
+        cur = ' aria-current="page"' if key == active else ""
+        out.append(f'<a href="{path}"{cur}>{label}</a>')
+    return "".join(out)
+
+
+def render_page(key: str) -> str:
+    """Tiny server-side template: shared header, nav and footer around each page body."""
+    _, _, _, title = next(p for p in PAGES if p[1] == key)
+    base = (BASE / "pages" / "base.html").read_text()
+    content = (BASE / "pages" / f"{key}.html").read_text()
+    scripts = "".join(f'<script src="/static/{n}"></script>' for n in PAGE_SCRIPTS.get(key, []))
+    footnav = " &middot; ".join(f'<a href="{path}">{label}</a>' for path, _, label, _ in NAV)
+    return (base.replace("{{content}}", content).replace("{{title}}", title)
+            .replace("{{nav}}", _nav(key)).replace("{{footnav}}", footnav).replace("{{scripts}}", scripts))
+
+
+def _make_route(key: str):
+    def view():
+        return HTMLResponse(render_page(key))
+    return view
+
+
+for _path, _key, _label, _title in PAGES:
+    app.get(_path, response_class=HTMLResponse, name=f"page_{_key}")(_make_route(_key))
 
 
 @app.post("/api/check")

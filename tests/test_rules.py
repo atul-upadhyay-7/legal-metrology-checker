@@ -166,12 +166,28 @@ def test_rule_refs_and_counts_present():
     assert sum(out["counts"].values()) == 6
 
 
+def test_pages_render_with_shared_nav_and_footer():
+    c = TestClient(app)
+    for path in ("/", "/check", "/results", "/how-it-works", "/about"):
+        r = c.get(path)
+        assert r.status_code == 200, path
+        h = r.text
+        assert "{{" not in h, path                       # every placeholder filled
+        assert h.count('aria-current="page"') <= 1
+        for link in ('href="/check"', 'href="/how-it-works"', 'href="/about"'):
+            assert link in h, (path, link)
+        assert "Legal Metrology Checker" in h and "First-pass aid, not legal advice" in h
+    assert 'aria-current="page"' in c.get("/about").text
+    assert c.get("/nope").status_code == 404
+
+
 def test_motion_assets_are_local_and_licensed():
     from pathlib import Path
     st = Path(__file__).resolve().parent.parent / "app" / "static"
     assert (st / "vendor" / "anime.umd.min.js").exists() and "MIT" in (st / "vendor" / "anime-LICENSE.md").read_text()
-    for page in ("index.html",):
-        html = (st / page).read_text()
-        assert "http://" not in html and "https://" not in html.replace("https://www.example.com", "")  # no CDN, demo-safe
+    c = TestClient(app)
+    for path in ("/", "/check", "/results", "/how-it-works", "/about"):
+        html = c.get(path).text
+        assert "http://" not in html.replace("https://www.example.com", "") and "cdn" not in html.lower()  # no CDN, demo-safe
         assert "vendor/anime.umd.min.js" in html and "motion.js" in html
     assert "prefers-reduced-motion" in (st / "motion.js").read_text()

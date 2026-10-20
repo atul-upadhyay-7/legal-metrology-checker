@@ -16,13 +16,29 @@
     /* Input page: hero text rises in, cards follow one after another. */
     pageIn() {
       if (!ok) return;
-      const hero = $$('.hero .tag, .hero h1, .hero p');
+      const hero = $$('.hero .tag, .hero h1, .hero p, .hero .cta');
       const cards = $$('.grid .card');
       hide(cards); hide(hero);
       A.animate(hero, { opacity: [0, 1], translateY: [14, 0], duration: 560, delay: A.stagger(90), ease });
       A.animate(cards, { opacity: [0, 1], translateY: [18, 0], duration: 600, delay: A.stagger(110, { start: 150 }), ease });
-      $$('.rules li').forEach(li => { li.style.opacity = '0'; });
-      A.animate($$('.rules li'), { opacity: [0, 1], translateX: [-8, 0], duration: 420, delay: A.stagger(70, { start: 450 }), ease });
+      const li = $$('.rules li'); hide(li);
+      A.animate(li, { opacity: [0, 1], translateX: [-8, 0], duration: 420, delay: A.stagger(70, { start: 450 }), ease });
+    },
+
+    /* Elements marked data-rise fade up as they scroll into view (and on load if already visible). */
+    scrollRise() {
+      const els = $$('[data-rise]');
+      if (!ok || !els.length || !('IntersectionObserver' in window)) return;
+      const hero = $$('.hero .tag, .hero h1, .hero p, .hero .cta');
+      hide(hero);
+      A.animate(hero, { opacity: [0, 1], translateY: [14, 0], duration: 560, delay: A.stagger(90), ease });
+      hide(els);
+      const io = new IntersectionObserver(entries => {
+        const vis = entries.filter(e => e.isIntersecting).map(e => e.target);
+        vis.forEach(t => io.unobserve(t));
+        if (vis.length) A.animate(vis, { opacity: [0, 1], translateY: [22, 0], duration: 560, delay: A.stagger(90), ease });
+      }, { threshold: 0.12 });
+      els.forEach(e => io.observe(e));
     },
 
     /* Switching between listing and package input. */
