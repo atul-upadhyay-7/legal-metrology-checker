@@ -25,3 +25,4 @@ if(j){
   out.append(items);
   const d=el('details');d.append(el('summary','','Text that was checked'),el('pre','',j.extracted_text||''));out.append(d);
 }
+if(j&&window.Motion)Motion.resultsIn();

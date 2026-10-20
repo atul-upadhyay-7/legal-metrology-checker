@@ -9,7 +9,8 @@
 body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 var(--sans)}
 a{color:var(--green)}
 .wrap{max-width:1040px;margin:0 auto;padding:0 20px}
-header.top{border-bottom:2px solid var(--ink);padding:22px 0 16px;margin-bottom:28px}
+header.top{--draw:1;padding:22px 0 16px;margin-bottom:28px;position:relative}
+header.top::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--ink);transform-origin:left;transform:scaleX(var(--draw))}
 header.top h1{margin:0;font:700 clamp(1.5rem,3.4vw,2.1rem)/1.15 var(--serif);letter-spacing:-.01em}
 header.top p{margin:6px 0 0;color:var(--muted);max-width:60ch}
 .grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:28px;align-items:start;padding-bottom:48px}
@@ -77,3 +78,6 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#fff;border:1px solid
   .banner h2{font-size:1.35rem}
   button.primary{width:100%}
 }
+
+.scanline{position:absolute;left:6px;right:6px;top:2%;height:3px;background:var(--green);opacity:.7;border-radius:2px;pointer-events:none}
+.field{position:relative}

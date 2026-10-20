@@ -164,3 +164,14 @@ def test_rule_refs_and_counts_present():
     out = run_rules((S / "01_compliant.txt").read_text())
     assert all(r["ref"].startswith("Rule 6") for r in out["results"])
     assert sum(out["counts"].values()) == 6
+
+
+def test_motion_assets_are_local_and_licensed():
+    from pathlib import Path
+    st = Path(__file__).resolve().parent.parent / "app" / "static"
+    assert (st / "vendor" / "anime.umd.min.js").exists() and "MIT" in (st / "vendor" / "anime-LICENSE.md").read_text()
+    for page in ("index.html", "results.html"):
+        html = (st / page).read_text()
+        assert "http://" not in html and "https://" not in html.replace("https://www.example.com", "")  # no CDN, demo-safe
+        assert "vendor/anime.umd.min.js" in html and "motion.js" in html
+    assert "prefers-reduced-motion" in (st / "motion.js").read_text()
