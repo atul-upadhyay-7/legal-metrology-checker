@@ -25,6 +25,7 @@ document.getElementById('f').onsubmit=async e=>{
  e.preventDefault();const out=document.getElementById('out');out.textContent='Checking...';
  const r=await fetch('/api/check',{method:'POST',body:new FormData(e.target)});
  const j=await r.json();
+ if(r.ok){sessionStorage.setItem('lm_result',JSON.stringify(j));location.href='/static/results.html';return}
  if(!r.ok){out.textContent=j.detail||'Error';return}
  const names={compliant:'Compliant',non_compliant:'Non-compliant',needs_review:'Needs review'};
  out.innerHTML='<h2>'+names[j.overall]+'</h2>'+j.results.map(x=>

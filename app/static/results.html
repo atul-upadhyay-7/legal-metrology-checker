@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Legal Metrology Checker - Results</title>
+<style>
+body{font-family:Arial,sans-serif;max-width:760px;margin:2rem auto;padding:0 1rem;color:#111}
+h1{color:#14532d}a{color:#14532d}
+.card{border-left:6px solid #999;padding:.5rem .8rem;margin:.5rem 0;background:#f6f6f6}
+.pass{border-color:#15803d}.fail{border-color:#b91c1c}.review{border-color:#b45309}.not_applicable{border-color:#6b7280}
+.tag{font-weight:bold;text-transform:uppercase;font-size:.8rem} small{color:#444} pre{white-space:pre-wrap;background:#f6f6f6;padding:.5rem}
+</style></head><body>
+<p><a href="/">&larr; Check another</a></p><h1>Results</h1><div id="out">No result yet.</div>
+<script>
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const j=JSON.parse(sessionStorage.getItem('lm_result')||'null');
+if(j){const names={compliant:'Compliant',non_compliant:'Non-compliant',needs_review:'Needs review'};
+document.getElementById('out').innerHTML='<h2>'+names[j.overall]+'</h2><p><small>Checked as: '+esc(j.context)+' / '+esc(j.category)+'</small></p>'+j.results.map(x=>
+ `<div class="card ${x.status}"><span class="tag">${x.status.replace('_',' ')}</span> ${esc(x.label)}<br><small>${esc(x.detail)}${x.evidence?' | Found: '+esc(x.evidence):''}</small></div>`).join('')
+ +'<details><summary>Extracted text</summary><pre>'+esc(j.extracted_text)+'</pre></details>';}
+</script></body></html>
