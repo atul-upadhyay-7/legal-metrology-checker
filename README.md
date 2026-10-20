@@ -9,7 +9,7 @@ Checks: net quantity, MRP inclusive of all taxes, manufacture or pack month and 
 For an online listing, paste a product-page URL. The server calls the TinyFish **Fetch API** (`POST https://api.fetch.tinyfish.ai`, `ttl: 0` so it is a live fetch, markdown output), receives the rendered page text plus title, final URL and capture time, and feeds that text to the same rule engine in the **listing** context (Rule 6(10)). The result shows the capture source and timestamp.
 
 - Endpoint: `POST /api/check-url` (form fields `url`, optional `category`).
-- A failed, blocked or empty capture returns an error telling the reviewer to treat the product as Needs review. It never produces a pass or a violation.
+- A failed, blocked or empty capture returns an error, and a consent or access page (very short, or no price on it) returns Needs review with no declaration assessed. Neither produces a pass or a violation.
 - Only public http(s) URLs are accepted (localhost and private addresses are rejected). Read-only: no purchases, logins or seller changes.
 - Set `TINYFISH_API_KEY` in the environment (key from https://agent.tinyfish.ai/api-keys). Fetch is free up to 1,000 URLs per day.
 - Tests mock the TinyFish HTTP response; a real call needs the key.

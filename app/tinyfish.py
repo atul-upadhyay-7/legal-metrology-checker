@@ -80,3 +80,17 @@ def fetch_listing(url: str, client: httpx.Client | None = None) -> dict:
             "chars": len(text),
         },
     }
+
+
+def capture_problem(text: str) -> str:
+    """Return a reason if the captured text is clearly not a product page, else ''.
+
+    Marketplaces sometimes return a consent, 'continue shopping' or bot-wall page. Running the
+    rules on that would report every declaration as missing, which is a false finding.
+    """
+    import re
+    if len(text.strip()) < 2500:
+        return "The captured page is very short, so it is probably not the product page (consent or access page)."
+    if not re.search(r"(?:\u20b9|\bRs\.?|\bINR\b|m\.?r\.?p)", text, re.I):
+        return "The captured page shows no price or MRP, so it is probably not the product page."
+    return ""

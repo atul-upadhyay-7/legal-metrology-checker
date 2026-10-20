@@ -4,7 +4,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from .ocr import extract_text
-from .tinyfish import CaptureError, fetch_listing
+from .tinyfish import CaptureError, capture_problem, fetch_listing
 from .rules import CATEGORIES, CONTEXTS, run_rules
 
 BASE = Path(__file__).parent
@@ -49,7 +49,15 @@ async def check_url(url: str = Form(...), category: str = Form("general")):
         cap = fetch_listing(url)
     except CaptureError as e:
         raise HTTPException(e.status, str(e))
-    out = run_rules(cap["text"], "listing", category)
+    problem = capture_problem(cap["text"])
+    if problem:
+        # An interstitial, consent or bot-wall page says nothing about the product.
+        out = {"overall": "needs_review", "context": "listing", "category": category,
+               "results": [{"rule": "capture", "label": "Page capture", "status": "review",
+                            "detail": problem + " No declaration was assessed. Needs review, not a violation.",
+                            "evidence": ""}]}
+    else:
+        out = run_rules(cap["text"], "listing", category)
     out["extracted_text"] = cap["text"]
     out["capture"] = cap["capture"]
     return out

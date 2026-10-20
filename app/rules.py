@@ -79,7 +79,7 @@ def check_mfg_date(text: str, context: str = "package", category: str = "general
 
 
 def check_address(text: str) -> Result:
-    m = re.search(r"(?:manufactured|marketed|packed|imported)\s*(?:&|and)?\s*(?:marketed|packed|by)?\s*(?:by)?\s*[:\-]?\s*([^\n]{5,}(?:\n[^\n]+){0,2})", text, I)
+    m = re.search(r"\b(?:manufactured|marketed|packed|imported)\s*(?:&|and)?\s*(?:marketed|packed)?\s*(?:by\b\s*[:\-]?|[:\-])\s*([^\n]{5,}(?:\n[^\n]+){0,2})", text, I)
     if m:
         block = m.group(1)
         has_pin = re.search(r"\b\d{6}\b", block + text)

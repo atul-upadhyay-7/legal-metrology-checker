@@ -96,7 +96,7 @@ def test_check_url_uses_tinyfish_and_listing_rules(monkeypatch):
         import httpx
         seen["key"] = req.headers["x-api-key"]
         seen["body"] = json.loads(req.content)
-        text = (S / "04_expiry_only_review.txt").read_text()
+        text = (S / "04_expiry_only_review.txt").read_text() + "\nProduct description. " * 150
         return httpx.Response(200, json={"results": [{"url": "https://shop.example/p", "final_url": "https://shop.example/p", "title": "Tea", "text": text}], "errors": []})
 
     _fake_tinyfish(monkeypatch, handler)
@@ -122,3 +122,18 @@ def test_check_url_missing_key_and_bad_url(monkeypatch):
     monkeypatch.setenv("TINYFISH_API_KEY", "k")
     assert c.post("/api/check-url", data={"url": "http://127.0.0.1:8000/"}).status_code == 400
     assert c.post("/api/check-url", data={"url": "file:///etc/passwd"}).status_code == 400
+
+
+def test_check_url_interstitial_page_is_needs_review_not_violation(monkeypatch):
+    import httpx
+    page = "Click the button below to continue shopping\nContinue shopping\nConditions of Use & Sale"
+    _fake_tinyfish(monkeypatch, lambda req: httpx.Response(200, json={"results": [{"url": "u", "final_url": "u", "title": "Shop", "text": page}], "errors": []}))
+    j = TestClient(app).post("/api/check-url", data={"url": "https://shop.example/p"}).json()
+    assert j["overall"] == "needs_review" and j["results"][0]["rule"] == "capture"
+
+
+def test_address_needs_by_keyword_not_free_text():
+    out = run_rules("This salt was first manufactured by Tata in a vacuum pack and is great.", "listing")
+    assert status(out, "address") == "fail"
+    out = run_rules("Marketed by: Foo Foods, Plot 3, Sector 9, Pune 411019", "listing")
+    assert status(out, "address") == "pass"
